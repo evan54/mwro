@@ -246,7 +246,7 @@ main_layout = [
     [sg.Text('00:00:00', key='timer', size=(15, 1))],
     [sg.Text('', key='last_feed_info', size=(40, 3))],
     [sg.Button('Κατούρησε', key='peed', size=(15, 1))],
-    [sg.Button('Κακά', key='pooped', size=(15, 1))]
+    [sg.Button('Κακά', key='pooped', size=(15, 1))],
     [sg.Button('Κλείσιμο', key='close', size=(15, 1))]
 ]
 
