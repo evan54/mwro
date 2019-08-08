@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import datetime as dtt
 import re
+import argparse
 
-import PySimpleGUIWeb as sg
 from pony import orm
 from pony.orm import Required, Optional, db_session
+import PySimpleGUIWeb as sg
+
 
 ###############################################################################
 # DATABASE
@@ -105,8 +106,6 @@ def PopupOffsetWindow(main_string, first_pass_extra):
         if offset_text == '':
             offset_text = '0'
         offset = re.findall(r'(\d+)', offset_text)
-        if len(offset) == 1:
-            offset = [0]
         found_valid = len(offset) == 1
         if found_valid:
             offset = int(offset[0])
@@ -202,12 +201,14 @@ def update_feed():
         last_entry = get_last_row(Breastfeeding)
         current_time = (dtt.datetime.now() - last_entry.start_time)
         current_time = int(current_time.total_seconds())
-        time_str = '{:02d}:{:02d}'.format(current_time // 60,
-                                          current_time % 60)
+        time_str = '{:02d}:{:02d}:{:02d}'.format(
+            current_time // 3600,
+            current_time // 60,
+            current_time % 60)
         left_str = button_str[0] if last_entry.is_left else 'Άκυρο'
         right_str = button_str[1] if not last_entry.is_left else 'Άκυρο'
     else:
-        time_str = '00:00.00'
+        time_str = '00:00:00'
         left_str, right_str = button_str
 
     return time_str, left_str, right_str
@@ -240,29 +241,38 @@ def update_last_feed():
 sg.SetOptions(font='Helvetica 14')
 
 button_str = ['Αριστερό', 'Δεξί']
-button = [sg.Button(button_str[0], key='left', size=(15, 1)),
-          sg.Button(button_str[1], key='right', size=(15, 1))]
+button = [sg.Button(button_str[0], key='left', size=(15, 3)),
+          sg.Button(button_str[1], key='right', size=(15, 3))]
 
 main_layout = [
-    button + [sg.Button('Μπουκαλάκι', key='bottle', size=(15, 1))],
+    button,
+    [sg.Button('Μπουκαλάκι', key='bottle', size=(30, 3))],
     [sg.Text('00:00:00', key='timer', size=(15, 1))],
     [sg.Text('', key='last_feed_info', size=(40, 3))],
-    [sg.Button('Κατούρησε', key='peed', size=(15, 1))],
-    [sg.Button('Κακά', key='pooped', size=(15, 1))],
-    [sg.Button('Κλείσιμο', key='close', size=(15, 1))]
+    [sg.Button('Κατούρησε', key='peed', size=(15, 3)),
+     sg.Button('Κακά', key='pooped', size=(15, 3))]]
+
+close_addition = [
+    [sg.Button('Κλείσιμο', key='close', size=(30, 3))]
 ]
 
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser('')
+    parser.add_argument('-p', '--port', help='enter port number',
+                        default=1234, type=int)
+    parser.add_argument('--disable_close', action='store_true')
+    args = parser.parse_args()
+
     if 'Web' in sg.__name__:
-        if len(sys.argv) > 1:
-            port = int(sys.argv[1])
+        if not args.disable_close:
+            main_layout += close_addition
         main_win = sg.Window('Ιστορικό μωρού', layout=main_layout,
-                             web_port=port,
+                             web_port=args.port,
                              web_start_browser=False,
-                             # web_multiple_instance=True,
-                             disable_close=True
+                             web_multiple_instance=True,
+                             disable_close=args.disable_close
                              )
     else:
         main_win = sg.Window('Ιστορικό μωρού',
