@@ -175,6 +175,7 @@ def manage_bottlefeeding():
 def manage_events(event, values):
     now = dtt.datetime.now()
 
+    print(event)
     if event in ['left', 'right']:
         manage_breastfeeding(event, values)
     elif event == 'bottle':
@@ -268,12 +269,13 @@ if __name__ == '__main__':
     if 'Web' in sg.__name__:
         if not args.disable_close:
             main_layout += close_addition
-        main_win = sg.Window('Ιστορικό μωρού', layout=main_layout,
-                             web_port=args.port,
-                             web_start_browser=False,
-                             web_multiple_instance=True,
-                             disable_close=args.disable_close
-                             )
+        main_win = sg.Window(
+                'Ιστορικό μωρού', layout=main_layout,
+                web_port=args.port,
+                web_start_browser=False,
+                web_multiple_instance=False,  # currently the default value
+                disable_close=args.disable_close
+                )
     else:
         main_win = sg.Window('Ιστορικό μωρού',
                              layout=main_layout)
